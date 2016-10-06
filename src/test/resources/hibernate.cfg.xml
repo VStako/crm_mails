@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<!DOCTYPE hibernate-configuration SYSTEM-->
+        <!--"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">-->
+
+
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <!--ssh connection-->
+        <!--<property name="hibernate.connection.socketFactory">com.mysql.jdbc.NamedPipeSocketFactory</property> -->
+
+        <!-- Assume test is the database name -->
+        <property name="hibernate.connection.url">jdbc:mysql://88.208.2.214:3306/analytics_dev</property>
+        <property name="hibernate.connection.username">chat</property>
+        <property name="hibernate.connection.password">ictebcynucJan</property>
+
+        <property name="show_sql">true</property>
+        <property name="hbm2ddl.auto">validate</property>
+        <!-- List of XML mapping files -->
+        <!--<mapping resource="Employee.hbm.xml"/>-->
+
+    </session-factory>
+</hibernate-configuration>
