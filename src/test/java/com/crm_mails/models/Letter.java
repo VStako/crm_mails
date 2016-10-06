@@ -6,10 +6,12 @@ package com.crm_mails.models;
 public class Letter {
     private String sender;
     private String subject;
+    private String bulkId;
 
-    public Letter(String sender, String subject) {
+    public Letter(String sender, String subject, String bulkId) {
         this.sender = sender;
         this.subject = subject;
+        this.bulkId = bulkId;
     }
 
     public String getSender() {
@@ -20,8 +22,16 @@ public class Letter {
         return subject;
     }
 
+//    public void setBulkId(String bulkId){
+//        this.bulkId = bulkId;
+//    }
+
+    public String getBulkId(){
+        return bulkId;
+    }
+
     @Override
     public String toString() {
-        return "sender: " + this.sender + ", subject: " + this.subject;
+        return "sender: " + this.sender + ", subject: " + this.subject + ", bulkID: " + bulkId;
     }
 }

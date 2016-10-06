@@ -2,6 +2,9 @@ package com.crm_mails.pages;
 
 import com.crm_mails.models.Letter;
 import com.crm_mails.models.UserFactory;
+import com.crm_mails.utility.CommonMethods;
+import com.crm_mails.utility.Constant;
+import com.crm_mails.utility.WebWindow;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -9,6 +12,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +49,10 @@ public class RamblerPage extends BasePage{
     @FindBy(xpath = "//div[contains(@class,'messagesTableBody')]//button[contains(@class,'buttonPageRight')]")
     @CacheLookup
     private static WebElement buttonNextPage;
+
+    @FindBy(xpath = "//xhtml:pre")
+//    @CacheLookup
+    private static WebElement textInOriginalLetter;
 
     @FindBy(xpath = "//div[contains(@class,'messagesTableBody')]//span[@class='mailboxPagesTotal'][2]")
     private static WebElement totalCountOfMails;
@@ -83,14 +92,6 @@ public class RamblerPage extends BasePage{
         spamEmails.click();
     }
 
-    private Letter createLetter(int index){
-        List<WebElement> webListInPage = driver.findElements(list);
-        String sender = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getText();
-        String subject = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSubjectRow']")).getText();
-        System.out.println(new Letter(sender, subject));
-        return new Letter(sender, subject);
-    }
-
     private void scrollPage(Scroll skroll){
         JavascriptExecutor jse = (JavascriptExecutor) driver;
         WebElement topEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][1]"));
@@ -108,6 +109,40 @@ public class RamblerPage extends BasePage{
     private enum Scroll{
         UP,
         DOWN
+    }
+
+    private Letter createLetter(int index){
+        List<WebElement> webListInPage = driver.findElements(list);
+        String sender = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getText();
+        String subject = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSubjectRow']")).getText();
+        //get url to original letter
+        String href = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getAttribute("href");
+        String urlToOriginalLetter = href.replace('#', 'm').substring(0, href.length()) + ".0/raw/id/";
+        System.out.println(new Letter(sender, subject, getBulkId(urlToOriginalLetter)));
+        return new Letter(sender, subject, getBulkId(urlToOriginalLetter));
+    }
+
+//    private String getUrlToOriginalLetter(int index){
+//        List<WebElement> webListInPage = driver.findElements(list);
+//        String href = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getAttribute("href");
+//        String urlToOriginalLetter = Constant.RAMBLER_URL + href.replace('#', 'm').substring(0, href.length()) + ".0/raw/id/";
+//        System.out.println(urlToOriginalLetter);
+//        return urlToOriginalLetter;
+//    }
+
+    public String getBulkId(String url){
+        WebWindow ww= new WebWindow(driver, url);
+        CommonMethods.waitSecond(1);
+        String str = textInOriginalLetter.getText();
+        String[] list = str.split("( |\n)");
+        for(int i=0; i<list.length; i++){
+            if (list[i].equals("X-Bulk-Id:")){
+                ww.close();
+                return list[i+1];
+            }
+        }
+        ww.close();
+        return "";
     }
 
     public List<Letter> createListOfLetter() {

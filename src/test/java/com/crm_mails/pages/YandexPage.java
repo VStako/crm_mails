@@ -117,8 +117,8 @@ public class YandexPage extends BasePage{
                 for (int j=1; j<=count; j++){
                     sender = webList.get(i+j).findElement(By.xpath("./span[1]/span[2]/span")).getText();
                     subject = webElement.findElement(By.xpath("./span[2]/span[2]/span[1]/span[1]/span")).getText();
-                    System.out.println(new Letter(sender, subject));
-                    listOfLetters.add(new Letter(sender, subject));
+//                    System.out.println(new Letter(sender, subject, ""));
+                    listOfLetters.add(new Letter(sender, subject, ""));
                 }
                 i=i+count;
                 count = 0;
@@ -126,8 +126,8 @@ public class YandexPage extends BasePage{
             } else {
                 sender = webElement.findElement(By.xpath("./span[1]/span[2]/span")).getText();
                 subject = webElement.findElement(By.xpath("./span[2]/span[2]/span[1]/span[1]/span")).getText();
-                System.out.println(new Letter(sender, subject));
-                listOfLetters.add(new Letter(sender, subject));
+//                System.out.println(new Letter(sender, subject, ""));
+                listOfLetters.add(new Letter(sender, subject, ""));
                 System.out.println(i);
             }
         }
@@ -166,8 +166,8 @@ public class YandexPage extends BasePage{
         for(WebElement webElement: webList){
             sender = webElement.findElement(By.xpath("./span[1]/span[2]/span")).getText();
             subject = webElement.findElement(By.xpath("./span[2]/span[2]/span[1]/span[1]/span")).getText();
-            System.out.println(new Letter(sender, subject));
-            listOfLetters.add(new Letter(sender, subject));
+//            System.out.println(new Letter(sender, subject, ""));
+            listOfLetters.add(new Letter(sender, subject, ""));
         }
         return listOfLetters;
     }
