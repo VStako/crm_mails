@@ -91,7 +91,7 @@ public class RamblerPage extends BasePage{
         return new Letter(sender, subject);
     }
 
-    private void scrollPageTopOrDown(Scroll skroll){
+    private void scrollPage(Scroll skroll){
         JavascriptExecutor jse = (JavascriptExecutor) driver;
         WebElement topEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][1]"));
         WebElement downEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][25]"));
@@ -114,11 +114,11 @@ public class RamblerPage extends BasePage{
         List<Letter> listOfLetters = new ArrayList<Letter>();
         int count = 1;
         Letter letter;
-        scrollPageTopOrDown(Scroll.DOWN);
+        scrollPage(Scroll.DOWN);
         if (totalCountOfMails.isDisplayed()) {
             count = (int) Math.ceil(Integer.parseInt(totalCountOfMails.getText()) / 25.00);
         }
-        scrollPageTopOrDown(Scroll.UP);
+        scrollPage(Scroll.UP);
         for (int i = 0; i < count; i++) {
             List<WebElement> webListInPage = driver.findElements(list);
             for (int m = 0; m < 15; m++) {
@@ -128,7 +128,7 @@ public class RamblerPage extends BasePage{
                 }
                 listOfLetters.add(letter);
             }
-            scrollPageTopOrDown(Scroll.DOWN);
+            scrollPage(Scroll.DOWN);
             for (int n = 15; n < webListInPage.size(); n++) {
                 letter = createLetter(n);
                 if (letter.getSender().equals("") &&  letter.getSubject().equals("")){
@@ -139,7 +139,7 @@ public class RamblerPage extends BasePage{
             if (buttonNextPage.isDisplayed()) {
                 buttonNextPage.click();
             }
-            scrollPageTopOrDown(Scroll.UP);
+            scrollPage(Scroll.UP);
         }
         return listOfLetters;
     }

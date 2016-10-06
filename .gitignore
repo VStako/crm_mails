@@ -1,0 +1,5 @@
+.idea/workspace.xml
+crm_mails.iml
+src/main/
+src/test/resources/credentials.properties
+target/

@@ -10,10 +10,12 @@ import org.testng.annotations.Test;
 /**
  * Created by stako on 05.10.2016.
  */
-public class RamblerTest extends BaseTest {@BeforeClass
-public void loginPrecondition(){
-    openRamblerPage();
-}
+public class RamblerTest extends BaseTest {
+
+    @BeforeClass
+    public void loginPrecondition(){
+        openRamblerPage();
+    }
 
     @Test
     public void testGetSendingReport(){
