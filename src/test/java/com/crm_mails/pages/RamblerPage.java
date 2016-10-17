@@ -3,17 +3,11 @@ package com.crm_mails.pages;
 import com.crm_mails.models.Letter;
 import com.crm_mails.models.UserFactory;
 import com.crm_mails.utility.CommonMethods;
-import com.crm_mails.utility.Constant;
 import com.crm_mails.utility.WebWindow;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.CacheLookup;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +45,6 @@ public class RamblerPage extends BasePage{
     private static WebElement buttonNextPage;
 
     @FindBy(xpath = "//xhtml:pre")
-//    @CacheLookup
     private static WebElement textInOriginalLetter;
 
     @FindBy(xpath = "//div[contains(@class,'messagesTableBody')]//span[@class='mailboxPagesTotal'][2]")
@@ -61,8 +54,6 @@ public class RamblerPage extends BasePage{
     private static WebElement buttonNextPageDisabled;
 
     private static final By list = By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')]");
-    private static final By listOfSender = By.xpath(".//div[@class='messagesWrap']//a[@class='tableCell tableSenderRow']");
-    private static final By listOfSubject = By.xpath(".//div[@class='messagesWrap']//a[@class='tableCell tableSubjectRow']");
 
 
     public RamblerPage(WebDriver driver) {
@@ -93,15 +84,21 @@ public class RamblerPage extends BasePage{
     }
 
     private void scrollPage(Scroll skroll){
+        WebElement bottomEl;
+        List<WebElement> webListInPage = driver.findElements(list);
         JavascriptExecutor jse = (JavascriptExecutor) driver;
         WebElement topEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][1]"));
-        WebElement downEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][25]"));
+        if (webListInPage.size() > 25) {
+            bottomEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][25]"));
+        } else {
+            bottomEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][" + (webListInPage.size() - 1) + "]"));
+        }
         switch (skroll){
             case UP:
                 jse.executeScript("arguments[0].scrollIntoView();", topEl);
                 break;
             case DOWN:
-                jse.executeScript("arguments[0].scrollIntoView();", downEl);
+                jse.executeScript("arguments[0].scrollIntoView();", bottomEl);
                 break;
         }
     }
@@ -118,20 +115,11 @@ public class RamblerPage extends BasePage{
         //get url to original letter
         String href = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getAttribute("href");
         String urlToOriginalLetter = href.replace('#', 'm').substring(0, href.length()) + ".0/raw/id/";
-        System.out.println(new Letter(sender, subject, getBulkId(urlToOriginalLetter)));
         return new Letter(sender, subject, getBulkId(urlToOriginalLetter));
     }
 
-//    private String getUrlToOriginalLetter(int index){
-//        List<WebElement> webListInPage = driver.findElements(list);
-//        String href = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getAttribute("href");
-//        String urlToOriginalLetter = Constant.RAMBLER_URL + href.replace('#', 'm').substring(0, href.length()) + ".0/raw/id/";
-//        System.out.println(urlToOriginalLetter);
-//        return urlToOriginalLetter;
-//    }
-
     public String getBulkId(String url){
-        WebWindow ww= new WebWindow(driver, url);
+        WebWindow ww = new WebWindow(driver, url);
         CommonMethods.waitSecond(1);
         String str = textInOriginalLetter.getText();
         String[] list = str.split("( |\n)");
@@ -150,8 +138,12 @@ public class RamblerPage extends BasePage{
         int count = 1;
         Letter letter;
         scrollPage(Scroll.DOWN);
-        if (totalCountOfMails.isDisplayed()) {
-            count = (int) Math.ceil(Integer.parseInt(totalCountOfMails.getText()) / 25.00);
+        try {
+            if (totalCountOfMails.isDisplayed()) {
+                count = (int) Math.ceil(Integer.parseInt(totalCountOfMails.getText()) / 25.00);
+            }
+        } catch (NoSuchElementException exception){
+            System.out.println("NoSuchElementException: " + exception);
         }
         scrollPage(Scroll.UP);
         for (int i = 0; i < count; i++) {
@@ -159,6 +151,7 @@ public class RamblerPage extends BasePage{
             for (int m = 0; m < 15; m++) {
                 letter = createLetter(m);
                 if (letter.getSender().equals("") &&  letter.getSubject().equals("")){
+                    seeAllList(listOfLetters);
                     return listOfLetters;
                 }
                 listOfLetters.add(letter);
@@ -167,6 +160,7 @@ public class RamblerPage extends BasePage{
             for (int n = 15; n < webListInPage.size(); n++) {
                 letter = createLetter(n);
                 if (letter.getSender().equals("") &&  letter.getSubject().equals("")){
+                    seeAllList(listOfLetters);
                     return listOfLetters;
                 }
                 listOfLetters.add(letter);
@@ -176,6 +170,13 @@ public class RamblerPage extends BasePage{
             }
             scrollPage(Scroll.UP);
         }
+        seeAllList(listOfLetters);
         return listOfLetters;
+    }
+
+    public void seeAllList(List list){
+        for(Object item: list){
+            System.out.println(item);
+        }
     }
 }

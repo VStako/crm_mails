@@ -22,10 +22,6 @@ public class Letter {
         return subject;
     }
 
-//    public void setBulkId(String bulkId){
-//        this.bulkId = bulkId;
-//    }
-
     public String getBulkId(){
         return bulkId;
     }
