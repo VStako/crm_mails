@@ -2,10 +2,11 @@ package com.crm_mails.tests.ui;
 
 import com.crm_mails.models.UserFactory;
 import com.crm_mails.tests.BaseTest;
-import com.crm_mails.utility.CommonMethods;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.List;
 
 /**
  * Created by stako on 22.09.2016.
@@ -19,10 +20,17 @@ public class YandexTest extends BaseTest {
     @Test
     public void testGetSendingReport(){
         yandexPage.loginToYandex(UserFactory.yandexUser());
-        yandexPage.createListOfLetterFromInbox();
+        System.out.println("INBOX");
+        printList(yandexPage.createListOfLetterFromInbox());
         yandexPage.goToSpam();
-        yandexPage.createListOfLetterFromSpam();
+        System.out.println("SPAM");
+        printList(yandexPage.createListOfLetterFromSpam());
         Assert.assertTrue(true);
     }
 
+    public void printList(List list){
+        for(Object letter: list){
+            System.out.println(letter);
+        }
+    }
 }

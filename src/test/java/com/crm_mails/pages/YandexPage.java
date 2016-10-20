@@ -3,7 +3,7 @@ package com.crm_mails.pages;
 import com.crm_mails.models.Letter;
 import com.crm_mails.models.UserFactory;
 import com.crm_mails.utility.CommonMethods;
-import com.sun.org.apache.xpath.internal.SourceTree;
+import com.crm_mails.utility.WebWindow;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -66,6 +66,16 @@ public class YandexPage extends BasePage{
     @FindBy(xpath = "//div[contains(@class,'ns-view-container-desc mail-MessagesList js-messages-list')]//div[@class='mail-MessageSnippet-Content']/span[2]/span[2]/span[1]/span[2]")
     private static WebElement emailCountInSubject;
 
+    @FindBy(xpath = ".//div[@class='mail-Layout-Inner']//span[text()='Ещё']")
+    private static WebElement buttonMore;
+
+    @FindBy(xpath = ".//div[text()='Свойства письма']/..")
+    private static WebElement buttonGoToOriginalLetter;
+
+    @FindBy(xpath = "//xhtml:pre")
+    private static WebElement textInOriginalLetter;
+
+
 
     public YandexPage(WebDriver driver) {
         super(driver);
@@ -107,7 +117,8 @@ public class YandexPage extends BasePage{
         int count = 0;
         String subject;
         String sender;
-        System.out.println(webList.size());
+        String bulkId;
+        String urlToOriginalLetter;
         for (int i=0; i<webList.size(); i++){
             WebElement webElement = webList.get(i);
             if (isWebElementHasInClassString(webElement.findElement(By.xpath("./span[2]/span[2]/span[1]/span[2]")))){
@@ -117,19 +128,49 @@ public class YandexPage extends BasePage{
                 for (int j=1; j<=count; j++){
                     sender = webList.get(i+j).findElement(By.xpath("./span[1]/span[2]/span")).getText();
                     subject = webElement.findElement(By.xpath("./span[2]/span[2]/span[1]/span[1]/span")).getText();
-//                    System.out.println(new Letter(sender, subject, ""));
-                    listOfLetters.add(new Letter(sender, subject, ""));
+                    //get url to original letter
+                    String href = webList.get(i+j).findElement(By.xpath("./..")).getAttribute("href");
+                    urlToOriginalLetter = href.substring(0, href.length());
+                    bulkId = openLetter(urlToOriginalLetter);
+                    System.out.println(sender + " - " + bulkId);
+                    listOfLetters.add(new Letter(sender, subject, bulkId));
                 }
                 i=i+count;
                 count = 0;
-                System.out.println(i);
             } else {
                 sender = webElement.findElement(By.xpath("./span[1]/span[2]/span")).getText();
                 subject = webElement.findElement(By.xpath("./span[2]/span[2]/span[1]/span[1]/span")).getText();
-//                System.out.println(new Letter(sender, subject, ""));
-                listOfLetters.add(new Letter(sender, subject, ""));
-                System.out.println(i);
+                //get url to original letter
+                String href = webElement.findElement(By.xpath("./..")).getAttribute("href");
+                urlToOriginalLetter = href.substring(0, href.length());
+                bulkId = openLetter(urlToOriginalLetter);
+                System.out.println(sender + " - " + bulkId);
+                listOfLetters.add(new Letter(sender, subject, bulkId));
             }
+        }
+        return listOfLetters;
+    }
+
+    public List<Letter> createListOfLetterFromSpam(){
+        driver.manage().timeouts().implicitlyWait(MAX_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        openAllLettersWithSimilarSubject();
+        driver.manage().timeouts().implicitlyWait(MAX_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        List<WebElement> webList = driver.findElements(list);
+        List<Letter> listOfLetters = new ArrayList<Letter>();
+        String sender;
+        String subject;
+        String bulkId;
+        String urlToOriginalLetter;
+        System.out.println(webList.size());
+        for(WebElement webElement: webList){
+            sender = webElement.findElement(By.xpath("./span[1]/span[2]/span")).getText();
+            subject = webElement.findElement(By.xpath("./span[2]/span[2]/span[1]/span[1]/span")).getText();
+            //get url to original letter
+            String href = webElement.findElement(By.xpath("./..")).getAttribute("href");
+            urlToOriginalLetter = href.substring(0, href.length());
+            bulkId = openLetter(urlToOriginalLetter);
+            System.out.println(sender + " - " + bulkId);
+            listOfLetters.add(new Letter(sender, subject, bulkId));
         }
         return listOfLetters;
     }
@@ -139,10 +180,10 @@ public class YandexPage extends BasePage{
         CommonMethods.waitSecond(2);
         while(buttonMoreEmailsHidden.isDisplayed()){
             buttonMoreEmails.click();
-            CommonMethods.waitSecond(2);
         }
         if(buttonGoTop.isDisplayed()){
             buttonGoTop.click();
+            CommonMethods.waitSecond(2);
         }
         List<WebElement> webList = driver.findElements(list);
         driver.manage().timeouts().implicitlyWait(MAX_WAIT_TIMEOUT, TimeUnit.SECONDS);
@@ -154,21 +195,27 @@ public class YandexPage extends BasePage{
         }
     }
 
-    public List<Letter> createListOfLetterFromSpam(){
-        driver.manage().timeouts().implicitlyWait(MAX_WAIT_TIMEOUT, TimeUnit.SECONDS);
-        openAllLettersWithSimilarSubject();
-        driver.manage().timeouts().implicitlyWait(MAX_WAIT_TIMEOUT, TimeUnit.SECONDS);
-        List<WebElement> webList = driver.findElements(list);
-        List<Letter> listOfLetters = new ArrayList<Letter>();
-        String subject;
-        String sender;
-        System.out.println(webList.size());
-        for(WebElement webElement: webList){
-            sender = webElement.findElement(By.xpath("./span[1]/span[2]/span")).getText();
-            subject = webElement.findElement(By.xpath("./span[2]/span[2]/span[1]/span[1]/span")).getText();
-//            System.out.println(new Letter(sender, subject, ""));
-            listOfLetters.add(new Letter(sender, subject, ""));
+    private String openLetter(String url){
+        WebWindow windowOfLetter = new WebWindow(driver, url);
+        CommonMethods.waitSecond(1);
+        buttonMore.click();
+        String id = getBulkId(buttonGoToOriginalLetter.getAttribute("href"));
+        windowOfLetter.close();
+        return id;
+    }
+
+    public String getBulkId(String url){
+        WebWindow ww = new WebWindow(driver, url);
+        CommonMethods.waitSecond(1);
+        String str = textInOriginalLetter.getText();
+        String[] list = str.split("( |\n)");
+        for(int i=0; i<list.length; i++){
+            if (list[i].equals("X-Bulk-Id:")){
+                ww.close();
+                return list[i+1];
+            }
         }
-        return listOfLetters;
+        ww.close();
+        return "";
     }
 }

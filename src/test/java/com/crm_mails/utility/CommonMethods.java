@@ -1,10 +1,5 @@
 package com.crm_mails.utility;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 /**
  * Created by stako on 15.06.2016.
  */
@@ -22,5 +17,4 @@ public class CommonMethods {
             e.printStackTrace();
         }
     }
-
 }
