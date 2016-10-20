@@ -13,6 +13,7 @@ public class Constant {
     //mail
 
     //gmail
+    public static final String GMAIL_URL = "https://accounts.google.com";
 
     //rambler
     public static final String RAMBLER_URL = "https://mail.rambler.ru/";

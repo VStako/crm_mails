@@ -19,6 +19,7 @@ public class BaseTest {
 
     protected YandexPage yandexPage;
     protected RamblerPage ramblerPage;
+    protected GmailPage gmailPage;
     private WebDriver driver;
 
     @BeforeClass(alwaysRun = true)
@@ -40,6 +41,11 @@ public class BaseTest {
     protected void openRamblerPage() {
         driver.get(Constant.RAMBLER_URL);
         ramblerPage = new RamblerPage(driver);
+    }
+
+    protected void openGmailPage() {
+        driver.get(Constant.GMAIL_URL);
+        gmailPage = new GmailPage(driver);
     }
 
     private WebDriver getWebDriver() {

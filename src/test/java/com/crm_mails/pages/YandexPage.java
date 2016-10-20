@@ -36,10 +36,6 @@ public class YandexPage extends BasePage{
     @CacheLookup
     private static WebElement buttonEnter;
 
-    @FindBy(xpath = ".//span[text()='Входящие']")
-    @CacheLookup
-    private static WebElement inboxEmails;
-
     @FindBy(xpath = ".//span[text()='Спам']")
     private static WebElement spamEmails;
 
@@ -94,10 +90,6 @@ public class YandexPage extends BasePage{
         inputPassword.clear();
         inputPassword.sendKeys(user.getPassword());
         buttonEnter.click();
-    }
-
-    public void goToInbox(){
-        inboxEmails.click();
     }
 
     public void goToSpam(){

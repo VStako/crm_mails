@@ -33,10 +33,6 @@ public class RamblerPage extends BasePage{
     @CacheLookup
     private static WebElement buttonEnter;
 
-    @FindBy(xpath = ".//span[text()='Входящие']")
-    @CacheLookup
-    private static WebElement inboxEmails;
-
     @FindBy(xpath = ".//span[text()='Спам']")
     private static WebElement spamEmails;
 
@@ -75,62 +71,8 @@ public class RamblerPage extends BasePage{
         buttonEnter.click();
     }
 
-    public void goToInbox(){
-        inboxEmails.click();
-    }
-
     public void goToSpam(){
         spamEmails.click();
-    }
-
-    private void scrollPage(Scroll skroll){
-        WebElement bottomEl;
-        List<WebElement> webListInPage = driver.findElements(list);
-        JavascriptExecutor jse = (JavascriptExecutor) driver;
-        WebElement topEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][1]"));
-        if (webListInPage.size() > 25) {
-            bottomEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][25]"));
-        } else {
-            bottomEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][" + (webListInPage.size() - 1) + "]"));
-        }
-        switch (skroll){
-            case UP:
-                jse.executeScript("arguments[0].scrollIntoView();", topEl);
-                break;
-            case DOWN:
-                jse.executeScript("arguments[0].scrollIntoView();", bottomEl);
-                break;
-        }
-    }
-
-    private enum Scroll{
-        UP,
-        DOWN
-    }
-
-    private Letter createLetter(int index){
-        List<WebElement> webListInPage = driver.findElements(list);
-        String sender = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getText();
-        String subject = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSubjectRow']")).getText();
-        //get url to original letter
-        String href = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getAttribute("href");
-        String urlToOriginalLetter = href.replace('#', 'm').substring(0, href.length()) + ".0/raw/id/";
-        return new Letter(sender, subject, getBulkId(urlToOriginalLetter));
-    }
-
-    public String getBulkId(String url){
-        WebWindow ww = new WebWindow(driver, url);
-        CommonMethods.waitSecond(1);
-        String str = textInOriginalLetter.getText();
-        String[] list = str.split("( |\n)");
-        for(int i=0; i<list.length; i++){
-            if (list[i].equals("X-Bulk-Id:")){
-                ww.close();
-                return list[i+1];
-            }
-        }
-        ww.close();
-        return "";
     }
 
     public List<Letter> createListOfLetter() {
@@ -174,9 +116,60 @@ public class RamblerPage extends BasePage{
         return listOfLetters;
     }
 
+    private Letter createLetter(int index){
+        List<WebElement> webListInPage = driver.findElements(list);
+        String sender = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getText();
+        String subject = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSubjectRow']")).getText();
+        //get url to original letter
+        String href = webListInPage.get(index).findElement(By.xpath("./a[@class='tableCell tableSenderRow']")).getAttribute("href");
+        String urlToOriginalLetter = href.replace('#', 'm').substring(0, href.length()) + ".0/raw/id/";
+        return new Letter(sender, subject, getBulkId(urlToOriginalLetter));
+    }
+
+    public String getBulkId(String url){
+        WebWindow ww = new WebWindow(driver, url);
+        CommonMethods.waitSecond(1);
+        String str = textInOriginalLetter.getText();
+        String[] list = str.split("( |\n)");
+        for(int i=0; i<list.length; i++){
+            if (list[i].equals("X-Bulk-Id:")){
+                ww.close();
+                return list[i+1];
+            }
+        }
+        ww.close();
+        return "";
+    }
+
     public void seeAllList(List list){
         for(Object item: list){
             System.out.println(item);
         }
+    }
+
+    private void scrollPage(Scroll skroll){
+        WebElement bottomEl;
+        List<WebElement> webListInPage = driver.findElements(list);
+        JavascriptExecutor jse = (JavascriptExecutor) driver;
+        WebElement topEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][1]"));
+        if (webListInPage.size() > 25) {
+            bottomEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][25]"));
+        } else {
+            bottomEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][" + (webListInPage.size() - 1) + "]"));
+        }
+        switch (skroll){
+            case UP:
+                jse.executeScript("arguments[0].scrollIntoView();", topEl);
+                break;
+            case DOWN:
+                jse.executeScript("arguments[0].scrollIntoView();", bottomEl);
+                break;
+        }
+    }
+
+    private enum Scroll{
+        UP,
+        DOWN
+
     }
 }
