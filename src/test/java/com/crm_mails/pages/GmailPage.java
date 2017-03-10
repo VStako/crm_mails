@@ -3,7 +3,9 @@ package com.crm_mails.pages;
 import com.crm_mails.models.Letter;
 import com.crm_mails.models.UserFactory;
 import com.crm_mails.utility.CommonMethods;
+import com.crm_mails.utility.WebWindow;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
@@ -47,20 +49,31 @@ public class GmailPage extends BasePage{
     @CacheLookup
     private static WebElement googleMail;
 
-    @FindBy(xpath = ".//*[@id=':48']//a")
-    private static WebElement spamEmails;
-
-    @FindBy(xpath = ".//*[@id=':3y']")
-    private static WebElement moreForSpam;
-
     @FindBy(xpath = ".//*[@id=':2y']")
     private static WebElement promotions;
 
     @FindBy(xpath = ".//h2[@id=':gr']")
     private static WebElement subjectInOneTypeLetter;
 
-//    private static final By list = By.xpath("//*[@class='yW']/span");
-    private static final By listInOneTypeLetter = By.xpath("//*[@class='yW']/span");
+    @FindBy(xpath = "//input[@name='bx_vmb' and @value='1']")
+    private static WebElement radiobuttonGroupLetterShutOff;
+
+    @FindBy(xpath = ".//*[text()='Сохранить изменения']")
+    private static WebElement saveSettings;
+
+    @FindBy(xpath = ".//*[@id=':5r']//span[3]")
+    private static WebElement countOfLetter;
+
+    @FindBy(xpath = "//xhtml:pre")
+    private static WebElement textInOriginalLetter;
+
+    @FindBy(xpath = ".//*[@id=':5']/div[2]/div[1]/div/div[1]/div/div/div")
+    private static WebElement buttonBackToInbox;
+
+    @FindBy(xpath = ".//*[@id=':5u']")
+    private static WebElement buttonNextPage;
+
+    private static final By listInOneTypeLetter = By.xpath(".//div[@role='list']/div");
     private static final By list = By.xpath(".//*[@id=':36']/tbody/tr/");
 
     public GmailPage(WebDriver driver) {
@@ -78,6 +91,7 @@ public class GmailPage extends BasePage{
         inputLogin.sendKeys(user.getEmail());
         buttonNext.click();
         driver.manage().timeouts().implicitlyWait(MAX_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        CommonMethods.waitSecond(1);
         inputPassword.clear();
         inputPassword.sendKeys(user.getPassword());
         buttonEnter.click();
@@ -85,39 +99,92 @@ public class GmailPage extends BasePage{
         googleMail.click();
     }
 
-    public void goToSpam(){
-        moreForSpam.click();
-        spamEmails.click();
-    }
-
     public List<Letter> createListOfLetter(){
-        int index = 35; //Integer.parseInt(driver.findElement(By.xpath(".//*[@id=':ct']/span/b[2]")).getText());
-        WebElement letter;
+        int index = 71; //Integer.parseInt(countOfLetter.getText());
+        System.out.println(index);
         String sender;
         String subject;
-        List<WebElement> listsInOneTypeLetter;
         List<Letter> listOfLetters = new ArrayList<Letter>();
 
         for(int i= 1; i <= index; i++) {
-            letter = driver.findElement(By.xpath(".//*[@id=':36']/tbody/tr[" + index + "]"));
-            sender = letter.findElement(By.xpath(".//div[2]/span")).getText();
-            subject = letter.findElement(By.xpath("//td[6]//span[1]")).getText();
-            letter.click();
-            CommonMethods.waitSecond(3);
+            sender = driver.findElement(By.xpath("//div[@role='main']//table[@id]//tr[" + i + "]//div[2]/span")).getText();
+            subject = driver.findElement(By.xpath("//div[@role='main']//table[@id]//tr[" + i + "]//td[6]//span[1]")).getText();
+            driver.findElement(By.xpath("//div[@role='main']//table[@id]//tr[" + i + "]")).click();
+//            get url to original letter
+            String letterID = getLetterId();
+            String userID = getClientId();
+            String originalLetterUrl = driver.getCurrentUrl().split("#")[0] + "?ui=2&ik=" + userID + "&view=om&th=" + letterID;
+            listOfLetters.add(new Letter(sender,subject, getBulkId(originalLetterUrl)));
+            buttonBackToInbox.click();
+            System.out.println(buttonNextPage.getAttribute("aria-disabled"));
+            if (index%50 == 0 && buttonNextPage.getAttribute("aria-disabled").equals("true")) {
+                buttonNextPage.click();
+            }
         }
-//        List<WebElement> webListInPage = driver.findElements(list);
-
-//        for (WebElement email: webListInPage) {
-////            email.findElement(By.xpath())
-//            email.click();
-//            listsInOneTypeLetter = driver.findElements(listInOneTypeLetter);
-//            for (WebElement letter: listsInOneTypeLetter){
-//                letter.click();
-//            }
-//
-//        }
-
         return listOfLetters;
     }
 
+    public String getClientId(){
+        JavascriptExecutor jse = (JavascriptExecutor) driver;
+        String sText =  jse.executeScript("return GLOBALS[9]").toString();
+        return sText;
+    }
+
+    private String getLetterId(){
+        String[] urlValue = driver.getCurrentUrl().split("/");
+        return urlValue[urlValue.length-1];
+    }
+
+    private void navigateTo(URL url){
+        switch (url){
+            case INBOX:
+                driver.navigate().to((driver.getCurrentUrl()).split("#")[0] + "#inbox");
+                break;
+            case SPAM:
+                driver.navigate().to((driver.getCurrentUrl()).split("#")[0] + "#spam");
+                break;
+            case SETTINGS:
+                driver.navigate().to((driver.getCurrentUrl()).split("#")[0] + "#settings/general");
+                break;
+        }
+    }
+
+    public void notGroupLettersSettings(){
+        navigateTo(URL.SETTINGS);
+        if (!CommonMethods.isAttributePresent(radiobuttonGroupLetterShutOff, "checked")){
+            radiobuttonGroupLetterShutOff.click();
+        }
+        saveSettings.click();
+        navigateTo(URL.INBOX);
+    }
+
+    private enum URL{
+        SPAM,
+        INBOX,
+        SETTINGS
+    }
+
+
+    public String createLetter(String url){
+        WebWindow windowOfLetter = new WebWindow(driver, url);
+        CommonMethods.waitSecond(1);
+
+        return "";
+    }
+
+    public String getBulkId(String url){
+        WebWindow ww = new WebWindow(driver, url);
+        CommonMethods.waitSecond(1);
+        String str = textInOriginalLetter.getText();
+        String[] list = str.split("( |\n)");
+        for(int i=0; i<list.length; i++){
+            if (list[i].equals("X-Bulk-Id:")){
+                ww.close();
+                System.out.println(list[i+1]);
+                return list[i+1];
+            }
+        }
+        ww.close();
+        return "";
+    }
 }

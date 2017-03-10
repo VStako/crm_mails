@@ -59,7 +59,7 @@ public class RamblerPage extends BasePage{
 
     @Override
     protected BasePage waitForPageToBeLoaded() {
-        waitForElementToBeVisible(ramblerLogo, MIN_WAIT_TIMEOUT);
+//        waitForElementToBeVisible(ramblerLogo, MIN_WAIT_TIMEOUT);
         return null;
     }
 
@@ -167,7 +167,7 @@ public class RamblerPage extends BasePage{
         }
     }
 
-    private enum Scroll{
+    public enum Scroll{
         UP,
         DOWN
 

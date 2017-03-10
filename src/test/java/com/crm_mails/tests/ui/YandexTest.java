@@ -21,6 +21,7 @@ public class YandexTest extends BaseTest {
     public void testGetSendingReport(){
         yandexPage.loginToYandex(UserFactory.yandexUser());
         System.out.println("INBOX");
+//        yandexPage.createLetter2("https://www.google.com.ua/");
         printList(yandexPage.createListOfLetterFromInbox());
         yandexPage.goToSpam();
         System.out.println("SPAM");

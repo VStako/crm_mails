@@ -12,7 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  * Created by stako on 14.07.2016.
  */
 public abstract class BasePage {
-    protected static final int MAX_WAIT_TIMEOUT = 10;
+    protected static final int MAX_WAIT_TIMEOUT = 30;
     protected static final int MIN_WAIT_TIMEOUT = 5;
 
     protected final WebDriver driver;

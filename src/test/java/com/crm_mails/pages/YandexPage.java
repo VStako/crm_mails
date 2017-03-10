@@ -4,9 +4,7 @@ import com.crm_mails.models.Letter;
 import com.crm_mails.models.UserFactory;
 import com.crm_mails.utility.CommonMethods;
 import com.crm_mails.utility.WebWindow;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.CacheLookup;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
@@ -39,10 +37,16 @@ public class YandexPage extends BasePage{
     @FindBy(xpath = ".//span[text()='Спам']")
     private static WebElement spamEmails;
 
-    @FindBy(xpath = ".//button[@tabindex='-1']")
+//    @FindBy(xpath = ".//button[@tabindex='-1']")
+    @FindBy(xpath = ".//button[@class=' nb-button _nb-large-pseudo-button mail-MessagesPager-button js-message-load-more']")
     private static WebElement buttonMoreEmails;
 
-    @FindBy(xpath = "//div[contains(@class,'ns-view-messages-pager-load-more ns-view-id-')]") //g-hidden
+//    <button class="nb-button _nb-large-pseudo-button mail-MessagesPager-button js-message-load-more" tabindex="-1"
+//    <button class=" nb-button _nb-large-pseudo-button mail-MessagesPager-button js-message-load-more" tabindex="-1"
+
+
+//    @FindBy(xpath = "//div[contains(@class,'ns-view-messages-pager-load-more ns-view-id-')]") //g-hidden
+    @FindBy(xpath = "//div[contains(@class,'b-mail-pager b-mail-pager_more')]/div[contains(@class,'g-hidden')][1]") //g-hidden
     private static WebElement buttonMoreEmailsHidden;
 
     @FindBy(xpath = "//a[contains(@class,'mail-Toolbar-Item_top')]/span")
@@ -171,6 +175,8 @@ public class YandexPage extends BasePage{
         driver.manage().timeouts().implicitlyWait(MAX_WAIT_TIMEOUT, TimeUnit.SECONDS);
         CommonMethods.waitSecond(2);
         while(buttonMoreEmailsHidden.isDisplayed()){
+//            scrollPage(RamblerPage.Scroll.DOWN);
+            driver.findElement(By.tagName("body")).sendKeys(Keys.PAGE_DOWN);
             buttonMoreEmails.click();
         }
         if(buttonGoTop.isDisplayed()){
@@ -196,6 +202,13 @@ public class YandexPage extends BasePage{
         return id;
     }
 
+//    public String createLetter2(String url){
+//        WebWindow windowOfLetter = new WebWindow(driver, url);
+//        CommonMethods.waitSecond(1);
+//
+//        return "";
+//    }
+
     public String getBulkId(String url){
         WebWindow ww = new WebWindow(driver, url);
         CommonMethods.waitSecond(1);
@@ -210,4 +223,26 @@ public class YandexPage extends BasePage{
         ww.close();
         return "";
     }
+
+//
+//    private void scrollPage(RamblerPage.Scroll skroll){
+//        WebElement bottomEl;
+//        List<WebElement> webListInPage = driver.findElements(list);
+//        JavascriptExecutor jse = (JavascriptExecutor) driver;
+//        WebElement topEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][1]"));
+//        if (webListInPage.size() > 25) {
+//            bottomEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][25]"));
+//        } else {
+//            bottomEl = driver.findElement(By.xpath(".//div[@class='messagesWrap']/div[contains(@class,'tableRow')][" + (webListInPage.size() - 1) + "]"));
+//        }
+//        switch (skroll){
+//            case UP:
+//                jse.executeScript("arguments[0].scrollIntoView();", topEl);
+//                break;
+//            case DOWN:
+//                jse.executeScript("arguments[0].scrollIntoView();", bottomEl);
+//                break;
+//        }
+//    }
+
 }

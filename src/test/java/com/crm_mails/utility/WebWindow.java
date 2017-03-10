@@ -12,7 +12,7 @@ import java.util.Set;
  * Creates and Handles a New window  *
  */
 public class WebWindow {
-    private WebDriver driver; // сюда передаем тот же веб драйвер который вызываеться в самих тестах
+    private WebDriver driver;
     private String handle;
     private String name;
     private String parentHandle;
@@ -37,6 +37,7 @@ public class WebWindow {
     public String getParentHandle() {
         return parentHandle;
     }
+
     public void close() {
         switchToWindow().close();
         handle = "";
@@ -60,11 +61,9 @@ public class WebWindow {
         parentHandle = driver.getWindowHandle();
         //Inject an anchor element
         ((JavascriptExecutor) driver).
-                executeScript(
-                        injectAnchorTag(name, url)
-                );
+                executeScript("window.open(\'" + url + "\');"  );
         //Click on the anchor element
-        driver.findElement(By.id(name)).click();
+//        driver.findElement(By.id(name)).click();
         handle = getNewHandle(oldHandles);
         return handle;
     }
@@ -80,15 +79,15 @@ public class WebWindow {
         if (handle == null || handle.equals(""))
             throw new WebDriverException("Web Window closed or not initialized");
     }
-    private String injectAnchorTag(String id, String url) {
-        return String.format("var anchorTag = document.createElement('a'); " +
-                        "anchorTag.appendChild(document.createTextNode('nwh'));" +
-                        "anchorTag.setAttribute('id', '%s');" +
-                        "anchorTag.setAttribute('href', '%s');" +
-                        "anchorTag.setAttribute('target', '_blank');" +
-                        "anchorTag.setAttribute('style', 'display:block;');" +
-                        "document.getElementsByTagName('body')[0].appendChild(anchorTag);",
-                id, url
-        );
-    }
+//    private String injectAnchorTag(String id, String url) {
+//        return String.format("var anchorTag = document.createElement('a'); " +
+//                        "anchorTag.appendChild(document.createTextNode('nwh'));" +
+//                        "anchorTag.setAttribute('id', '%s');" +
+//                        "anchorTag.setAttribute('href', '%s');" +
+//                        "anchorTag.setAttribute('target', '_blank');" +
+//                        "anchorTag.setAttribute('style', 'display:block; z-index:9999');" +
+//                        "document.getElementsByTagName('body')[0].appendChild(anchorTag);",
+//                id, url
+//        );
+//    }
 }

@@ -20,6 +20,7 @@ public class RamblerTest extends BaseTest {
     @Test
     public void testGetSendingReport(){
         ramblerPage.loginToRambler(UserFactory.raamblerUser());
+        CommonMethods.waitSecond(3);
         ramblerPage.createListOfLetter();
         ramblerPage.goToSpam();
         CommonMethods.waitSecond(3);

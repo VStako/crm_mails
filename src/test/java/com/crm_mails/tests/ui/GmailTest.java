@@ -20,9 +20,10 @@ public class GmailTest extends BaseTest{
     @Test
     public void testGetSendingReport(){
         gmailPage.loginToGmail(UserFactory.gmailUser());
+        gmailPage.getClientId();
+        gmailPage.notGroupLettersSettings();
         gmailPage.createListOfLetter();
         CommonMethods.waitSecond(3);
         Assert.assertTrue(true);
     }
-
 }
