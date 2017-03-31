@@ -51,11 +51,6 @@ public class BaseTest {
 
     private WebDriver getWebDriver() {
         if (driver == null) {
-//            return new FirefoxDriver(new ProfilesIni().getProfile("WebDriver"));
-//            return new FirefoxDriver();
-//            File file = new File("c:/Users/stako/IdeaProjects/yhtests/src/test/resources/chromedriver.exe");
-//            System.setProperty("webdriver.chrome.driver", file.getAbsolutePath());
-//            WebDriver driver = new InternetExplorerDriver();
             return getChrome();
         }
         return driver;
@@ -64,11 +59,6 @@ public class BaseTest {
     private WebDriver getChrome() {
         File file = new File("./src/test/resources/chromedriver.exe");
         System.setProperty("webdriver.chrome.driver", file.getAbsolutePath());
-//        DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-//        ChromeOptions options = new ChromeOptions();
-//        options.addArguments("test-type");
-//        capabilities.setCapability("chrome.binary", "./src/test/resources/chromedriver.exe");
-//        capabilities.setCapability(ChromeOptions.CAPABILITY, options);
         return new ChromeDriver();
     }
 }

@@ -127,6 +127,7 @@ public class GmailPage extends BasePage{
     public String getClientId(){
         JavascriptExecutor jse = (JavascriptExecutor) driver;
         String sText =  jse.executeScript("return GLOBALS[9]").toString();
+        System.out.println("userID = " + sText);
         return sText;
     }
 
